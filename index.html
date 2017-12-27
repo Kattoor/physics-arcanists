@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dag Randy</title>
+    <script src="DrawEngine.js"></script>
+    <script src="TerrainGenerator.js"></script>
+    <script src="PhysicsEngine.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+    const canvasDimensions = DrawEngine.createCanvas(document);
+    const terrain = TerrainGenerator.generate(canvasDimensions);
+    console.log(terrain);
+    //const physicsEngine = new PhysicsEngine();
+
+    const ball = {x: 900, y: 250.0, size: 25, velocityX: 0, velocityY: 0, fallsLeft: 6, totalFalls: 6};
+
+    setInterval(() => {
+        const gameContext = {
+            curvePoints: terrain.curvePoints,
+            boundingPoints: terrain.boundingPoints,
+            quadraticPullPoints: terrain.quadraticPullPoints
+        };
+        DrawEngine.draw(gameContext);
+    }, 1000 / 60);
+
+    document.body.onkeyup = (e) => {
+        if (e.keyCode === 32) {
+            ball.velocityY = -25;
+            ball.fallsLeft = ball.totalFalls;
+        }
+    };
+
+    /*let mousePosition = {x: ball.x, y: ball.y};
+    document.onmousemove = e => mousePosition = {x: e.clientX, y: e.clientY};
+
+    let mouseLocationNormalized = {x: ball.x, y: ball.y};
+    setInterval(() => {
+        const horizontalVectorLength = mousePosition.x - ball.x;
+        const verticalVectorLength = mousePosition.y - ball.y;
+        const diagonalVectorLength = Math.sqrt(Math.pow(horizontalVectorLength, 2) + Math.pow(verticalVectorLength, 2));
+        mouseLocationNormalized = {
+            x: ball.x + horizontalVectorLength / diagonalVectorLength * 100,
+            y: ball.y + verticalVectorLength / diagonalVectorLength * 100
+        };
+        console.log(mouseLocationNormalized);
+
+        //const m = (mouseLocation.y - ball.y) / (mouseLocation.x - ball.x);
+        //const b = e.clientY + m * e.clientX;
+        //formula = x => m * x + b;
+    }, 1);
+
+    let mouseDown = false;
+    let mouseDownCount = 0;
+    document.onmousedown = e => mouseDown = true;
+    setInterval(() => {
+        if (mouseDown) {
+            mouseDownCount++;
+        }
+    }, 10);
+    document.onmouseup = e => console.log(e);*/
+
+
+
+    /*  ctx.beginPath();
+      ctx.moveTo(curvePoints[0].x, curvePoints[0].y);
+      for (let i = 1; i < curvePoints.length; i++) {
+          ctx.lineTo(curvePoints[i].x, curvePoints[i].y);
+      }
+      ctx.stroke();*/
+
+
+    /*
+        ctx.fillStyle = "#FFFFFF";
+        quadraticPullPoints.forEach(pointInfo => ctx.fillRect(pointInfo.quadraticPullPoint.x - 5, pointInfo.quadraticPullPoint.y - 5, 10, 10));
+    */
+
+
+    /* Draw the quadratic pull lines */
+    /* ctx.beginPath();
+
+     ctx.moveTo();
+     ctx.lineTo();
+
+     ctx.stroke();*/
+
+
+    /*[{
+        points: [{x, y}, {x, y}],
+        quadraticPullPoint: {x, y}
+    }, ...]*/
+
+
+
+
+    /*  const curve = [...new Array(quadraticPullPoints.length).keys()].map(i => ({
+          x: (1 - (i / 100)) * ((1 - (i / 100)) * previousPoint.x + ((i / 100) * quadraticCurvePoints[i - 1].x)) + (i / 100) * (((1 - (i / 100)) * quadraticCurvePoints[i - 1].x + ((i / 100) * point.x))),
+          y: (1 - (i / 100)) * ((1 - (i / 100)) * previousPoint.y + ((i / 100) * quadraticCurvePoints[i - 1].y)) + (i / 100) * (((1 - (i / 100)) * quadraticCurvePoints[i - 1].y + ((i / 100) * point.y)))
+      }));
+
+      /!* Generate curve *!/
+      ctx.beginPath();
+      for (let i = 0; i < line.length; i++) {
+          const point = line[i];
+
+          if (i !== 0) {
+              const previousPoint = line[i - 1];
+              const quadraticCurvePoint = {
+                  x: Math.min(point.x, previousPoint.x) + Math.abs(point.x - previousPoint.x) / 2 + Math.random() * 500 - 250,
+                  y: Math.min(point.y, previousPoint.y) + Math.abs(point.y - previousPoint.y) / 2 + Math.random() * 1000 - 250
+              };
+              ctx.moveTo(previousPoint.x, previousPoint.y);
+              ctx.strokeStyle = '#000000';
+              ctx.quadraticCurveTo(quadraticCurvePoint.x, quadraticCurvePoint.y, point.x, point.y);
+              quadraticCurvePoints.push(quadraticCurvePoint);
+          }
+      }
+      ctx.stroke();
+
+      /!* Show points *!/
+      ctx.beginPath();
+      for (let i = 0; i < line.length; i++) {
+          const point = line[i];
+
+          if (i !== 0) {
+              const previousPoint = line[i - 1];
+
+              const quadraticPointOnCurve = {
+                  x: (1 - 0.5) * ((1 - 0.5) * previousPoint.x + (0.5 * quadraticCurvePoints[i - 1].x)) + 0.5 * (((1 - 0.5) * quadraticCurvePoints[i - 1].x + (0.5 * point.x))),
+                  y: (1 - 0.5) * ((1 - 0.5) * previousPoint.y + (0.5 * quadraticCurvePoints[i - 1].y)) + 0.5 * (((1 - 0.5) * quadraticCurvePoints[i - 1].y + (0.5 * point.y)))
+              };
+
+              ctx.strokeStyle = '#00FF00';
+              ctx.moveTo(quadraticPointOnCurve.x, quadraticPointOnCurve.y);
+              ctx.lineTo(quadraticCurvePoints[i - 1].x, quadraticCurvePoints[i - 1].y);
+
+              drawPoint(quadraticCurvePoints[i - 1], 10, '#00FF00');
+          }
+
+          drawPoint(point, 10, '#FF0000');
+      }
+      ctx.stroke();
+
+      for (let i = 0; i < line.length; i++) {
+          const point = line[i];
+          if (i !== 0) {
+              const previousPoint = line[i - 1];
+              for (let j = 0.1; j < 1; j += 0.2) {
+                  const pointOnQuadraticCurve = {
+                      x: (1 - j) * ((1 - j) * previousPoint.x + (j * quadraticCurvePoints[i - 1].x)) + j * (((1 - j) * quadraticCurvePoints[i - 1].x + (j * point.x))),
+                      y: (1 - j) * ((1 - j) * previousPoint.y + (j * quadraticCurvePoints[i - 1].y)) + j * (((1 - j) * quadraticCurvePoints[i - 1].y + (j * point.y)))
+                  };
+                  drawPoint(pointOnQuadraticCurve, 10, '#ffffff');
+                  pointsOnQuadraticCurve.push(pointOnQuadraticCurve);
+              }
+          }
+      }
+
+
+      /!* Show all points on curve (line points + quadratic line points) *!/
+      let curvePoints = line.slice();
+      for (let i = 0; i < line.length; i++)
+          curvePoints.splice(i * 6 + 1, 0, ...pointsOnQuadraticCurve.slice(i * 5, i * 5 + 5));
+      ctx.beginPath();
+      ctx.strokeStyle = '#FF00FF';
+      for (let i = 0; i < curvePoints.length; i++) {
+          const point = curvePoints[i];
+          if (i === 0)
+              ctx.moveTo(point.x, point.y - 5);
+          else
+              ctx.lineTo(point.x, point.y - 5);
+      }
+      ctx.stroke();
+
+      /!* Show perpendiculars *!/
+      ctx.beginPath();
+      ctx.strokeStyle = '#FFFFFF';
+      for (let i = 0; i < curvePoints.length; i++) {
+          if (i !== 0) {
+              const previousPoint = curvePoints[i - 1];
+              const point = curvePoints[i];
+              const slope = (point.y - previousPoint.y) / (point.x - previousPoint.x);
+              const perpendicularSlope = -1 / slope;
+              const midOfPoints = {
+                  x: Math.min(point.x, previousPoint.x) + Math.abs(point.x - previousPoint.x) / 2,
+                  y: Math.min(point.y, previousPoint.y) + Math.abs(point.y - previousPoint.y) / 2
+              };
+              const pt1 = {x: midOfPoints.x - 5, y: midOfPoints.y - perpendicularSlope * 5};
+              const pt2 = {x: midOfPoints.x + 5, y: midOfPoints.y + perpendicularSlope * 5};
+              ctx.moveTo(pt1.x, pt1.y);
+              ctx.lineTo(pt2.x, pt2.y);
+              console.log(pt1, pt2)
+          }
+      }
+      ctx.stroke();
+
+      function drawPoint(point, size, color) {
+          ctx.fillStyle = color;
+          ctx.fillRect(point.x - size / 2, point.y - size / 2, size, size);
+      }*/
+</script>
+</body>
+</html>
